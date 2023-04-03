@@ -16,7 +16,14 @@ class ProjectRecord implements Comparable<ProjectRecord> {
 
     @Override
     public int compareTo(ProjectRecord other) {
-        return Integer.compare(this.getProject().length(), other.getProject().length());
+        var comparisonResult = Integer.compare(this.getProject().length(), other.getProject().length());
+        comparisonResult = comparisonResult == 0 ? this.getProject().compareTo(other.getProject()) : comparisonResult;
+        return comparisonResult;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return Objects.nonNull(other) && other instanceof ProjectRecord && project.equals(((ProjectRecord) other).project);
     }
 }
 
@@ -26,7 +33,8 @@ public class DeveloperProjectFinder {
     public List<String> findDeveloperProject(Map<String, Set<String>> projects, String developer) {
         var projectRecords = new ArrayList<ProjectRecord>();
 
-        for (var project : projects.keySet()) {
+        for (var entry : projects.entrySet()) {
+            var project = entry.getKey();
             if (projects.get(project).contains(developer)) {
                 projectRecords.add(new ProjectRecord(project));
             }
@@ -34,11 +42,11 @@ public class DeveloperProjectFinder {
 
         projectRecords.sort(Comparator.reverseOrder());
 
-        var result = new ArrayList<String>();
+        var foundProjects = new ArrayList<String>();
         for (var record : projectRecords) {
-            result.add(record.getProject());
+            foundProjects.add(record.getProject());
         }
 
-        return result;
+        return foundProjects;
     }
 }
